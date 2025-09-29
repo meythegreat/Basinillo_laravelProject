@@ -9,6 +9,14 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/showgirl', function () {
+    return 'And baby, that is show business for you. ❤️‍🔥';
+});
+
+Route::get('/homepage', function () {
+    return view('homepage');
+});
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
