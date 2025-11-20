@@ -6,14 +6,14 @@ use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\SongController;
+use App\Http\Controllers\GenreController;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/home', fn () => view('welcome'))->name('home');
 
-Route::get('/dashboard', [StudentController::class, 'index'])
+Route::get('/students/dashboard', [StudentController::class, 'index'])
     ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    ->name('students.dashboard');
 
 // Student routes - CRUD operations
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -30,12 +30,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
 });
 
-
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
     Route::get('settings/profile', Profile::class)->name('settings.profile');
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+
+    // Music library
+    Route::get('/', [SongController::class,'index'])->name('dashboard');
+    Route::resource('songs', SongController::class)->except(['create','show','edit']);
+    Route::resource('genres', GenreController::class)->only(['index','store','update','destroy']);
 });
 
 require __DIR__.'/auth.php';
