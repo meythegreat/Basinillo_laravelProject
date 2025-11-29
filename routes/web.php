@@ -8,6 +8,10 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\GenreController;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/home', fn () => view('welcome'))->name('home');
 
@@ -40,6 +44,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [SongController::class,'index'])->name('dashboard');
     Route::resource('songs', SongController::class)->except(['create','show','edit']);
     Route::resource('genres', GenreController::class)->only(['index','store','update','destroy']);
+});
+
+Route::post('/register', function (Request $request) {
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ]);
+
+    $user = User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'password' => Hash::make($validated['password']),
+    ]);
+
+    Auth::login($user);
+
+    return redirect()->route('dashboard'); // or ->route('home') depending on your app
 });
 
 require __DIR__.'/auth.php';
