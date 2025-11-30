@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\LoginController;
 
 Route::get('/home', fn () => view('welcome'))->name('home');
 
@@ -60,8 +61,17 @@ Route::post('/register', function (Request $request) {
     ]);
 
     Auth::login($user);
-
-    return redirect()->route('dashboard'); // or ->route('home') depending on your app
+    return redirect()->route('dashboard'); 
 });
+
+Route::get('/login', [LoginController::class, 'showLoginForm'])
+    ->name('login');
+
+Route::post('/login', [LoginController::class, 'login'])
+    ->name('login.post');
+
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
 require __DIR__.'/auth.php';

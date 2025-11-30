@@ -9,11 +9,11 @@
 
     {{-- Add genre form --}}
     <section class="mb-6">
-      <div class="rounded-lg bg-white/5 p-4">
+      <div class="rounded-lg bg-white p-4">
         <form method="POST" action="{{ route('genres.store') }}" class="grid md:grid-cols-3 gap-3">
           @csrf
-          <input name="name" placeholder="Genre name" required class="w-full rounded border-none bg-white/10 p-2" />
-          <input name="description" placeholder="Short description (optional)" class="w-full rounded border-none bg-white/10 p-2" />
+          <input name="name" placeholder="Genre name" required class="w-full rounded border bg-white/10 p-2" />
+          <input name="description" placeholder="Short description (optional)" class="w-full rounded border bg-white/10 p-2" />
           <div class="flex items-center">
             <button type="submit" class="ml-auto inline-flex items-center rounded px-4 py-2 font-medium bg-indigo-600 text-white">Add Genre</button>
           </div>
@@ -22,7 +22,7 @@
     </section>
 
     {{-- Genres table --}}
-    <section class="rounded-lg bg-white/5 shadow-sm overflow-hidden">
+    <section class="rounded-lg bg-white shadow-sm overflow-hidden">
       <table class="min-w-full table-auto">
         <thead class="bg-white/3 text-left">
           <tr>
@@ -43,17 +43,17 @@
 
                   <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div @click.away="open=false" class="w-full max-w-lg rounded bg-zinc-900 p-4">
-                      <h3 class="text-lg font-semibold mb-3">Edit Genre</h3>
+                      <h3 class="text-lg font-semibold mb-3 text-white">Edit Genre</h3>
                         <form action="{{ route('genres.update', $genre) }}" method="POST" class="grid gap-2">
                             @csrf
                             @method('PUT')
 
-                            <input name="name" x-model="name" required class="w-full rounded p-2 bg-white/5" />
-                            <textarea name="description" x-model="description" class="w-full rounded p-2 bg-white/5" rows="3"></textarea>
+                            <input name="name" x-model="name" required class="w-full rounded p-2 bg-white" />
+                            <textarea name="description" x-model="description" class="w-full rounded p-2 bg-white" rows="3"></textarea>
 
                             <div class="flex gap-2 mt-2">
-                                <button type="button" @click="open = false" class="px-3 py-1 rounded border">Cancel</button>
-                                <button type="submit" class="ml-auto px-4 py-1 rounded bg-indigo-600 text-white">Save</button>
+                                <button type="button" @click="open = false" class="px-3 py-1 rounded border text-white bg-red-500">Cancel</button>
+                                <button type="submit" class="ml-auto px-4 py-1 rounded border bg-green-400">Save</button>
                             </div>
                         </form>
                     </div>
