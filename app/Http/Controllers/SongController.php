@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Song;
@@ -12,14 +13,41 @@ class SongController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    // ADD Request $request and use it
+    public function index(Request $request)
     {
-        $songs = Song::with('genre')->latest()->paginate(10);
-        $genres = Genre::orderBy('name')->get();
-        $totalSongs = Song::count();
-        $totalGenres = Genre::count();
+        // base query
+        $songsQuery = Song::with('genre');
+
+        // search by title or artist
+        if ($search = $request->input('search')) {
+            $songsQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('artist', 'like', "%{$search}%");
+            });
+        }
+
+        // filter by genre
+        if ($genreId = $request->input('genre')) {
+            $songsQuery->where('genre_id', $genreId);
+        }
+
+        // paginate (order however you like)
+        $songs = $songsQuery
+            ->latest()                   // or ->orderBy('title')
+            ->paginate(10)
+            ->withQueryString();         // keep ?search=&genre= on next pages
+
+        // stats (usually from the whole table, not filtered)
+        $totalSongs    = Song::count();
+        $totalGenres   = Genre::count();
         $totalDuration = Song::sum('duration_seconds') ?? 0;
-        return view('dashboard', compact('songs','genres','totalSongs','totalGenres','totalDuration'));
+
+        $genres = Genre::orderBy('name')->get();
+
+        return view('dashboard', compact(
+            'songs', 'genres', 'totalSongs', 'totalGenres', 'totalDuration'
+        ));
     }
 
     public function store(Request $r)
