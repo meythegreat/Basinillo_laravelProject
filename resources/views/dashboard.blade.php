@@ -1,5 +1,5 @@
 <x-layouts.app.sidebar :title="'Music Dashboard'">
-    <div class="mx-auto max-w-7xl p-6 text-gray-900 dark:text-gray-100 space-y-8">
+    <div class="w-full p-6 xl:p-8 2xl:p-10 text-gray-900 dark:text-gray-100 space-y-8">
 
         {{-- Page header (separate look is OK) --}}
         <header class="rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-6 py-5 text-white shadow-lg">

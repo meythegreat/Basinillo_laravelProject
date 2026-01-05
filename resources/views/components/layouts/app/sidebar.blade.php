@@ -4,11 +4,13 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen flex bg-zinc-50 text-gray-900 dark:bg-zinc-950 dark:text-gray-100">
-        <flux:sidebar
-            sticky
-            stashable
-            class="min-h-screen w-64 lg:w-72 border-e border-zinc-200 bg-zinc-50/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95 flex flex-col gap-4 px-4 py-4"
-        >
+    <flux:sidebar
+        sticky
+        stashable
+        class="min-h-screen w-64 lg:w-72 shrink-0 flex-none
+            border-e border-zinc-200 bg-zinc-50/95 backdrop-blur
+            dark:border-zinc-800 dark:bg-zinc-900/95"
+    >
             {{-- Top: logo + app name + close on mobile --}}
             <div class="flex items-center justify-between gap-2 mb-2">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2" wire:navigate>

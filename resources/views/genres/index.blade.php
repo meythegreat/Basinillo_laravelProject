@@ -1,5 +1,5 @@
 <x-layouts.app.sidebar :title="'Genres'">
-    <div class="mx-auto max-w-7xl p-6 text-gray-900 dark:text-gray-100 space-y-8">
+    <div class="w-full p-6 text-gray-900 dark:text-gray-100 space-y-8">
 
         {{-- Page header --}}
         <header class="rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-6 py-5 text-white shadow-lg">
@@ -166,9 +166,15 @@
                                 </td>
                                 <td class="px-4 py-3 align-middle text-right">
                                     <div
-                                        x-data="{ open:false, name:@js($genre->name), description:@js($genre->description) }"
+                                        x-data="{ open:false, openSongs:false, name:@js($genre->name), description:@js($genre->description) }"
                                         class="inline-flex items-center gap-2"
                                     >
+                                        <button
+                                            @click="openSongs = true"
+                                            class="text-xs font-medium text-sky-600 hover:text-sky-700 dark:text-sky-300 dark:hover:text-sky-200 underline"
+                                        >
+                                            View Songs
+                                        </button>
                                         <button
                                             @click="open = true"
                                             class="text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200 underline"
@@ -202,7 +208,7 @@
                                                 @click.away="open = false"
                                                 class="w-full max-w-lg rounded-2xl border border-zinc-200/80 bg-white p-5 text-gray-900 shadow-xl dark:border-zinc-700/70 dark:bg-zinc-900 dark:text-gray-100"
                                             >
-                                                <div class="mb-3 flex items-start justify-between gap-3">
+                                                <div class="mb-3 flex w-full items-start justify-between gap-3 text-left">
                                                     <div>
                                                         <h3 class="text-lg font-semibold">Edit Genre</h3>
                                                         <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -262,6 +268,83 @@
                                                         </button>
                                                     </div>
                                                 </form>
+                                            </div>
+                                        </div>
+
+                                        {{-- View Songs modal --}}
+                                        <div
+                                            x-show="openSongs"
+                                            x-cloak
+                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                                        >
+                                            <div
+                                                @click.away="openSongs = false"
+                                                class="w-full max-w-2xl rounded-2xl border border-zinc-200/80 bg-white p-5 text-gray-900 shadow-xl dark:border-zinc-700/70 dark:bg-zinc-900 dark:text-gray-100"
+                                            >
+                                                <div class="mb-3 flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <h3 class="text-lg font-semibold text-left">Songs in {{ $genre->name }}</h3>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                            These are the songs currently assigned to this genre.
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        @click="openSongs = false"
+                                                        class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+
+                                                @php $songsForGenre = $genre->songs ?? collect(); @endphp
+
+                                                @if($songsForGenre->isEmpty())
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
+                                                        No songs are assigned to this genre yet.
+                                                    </p>
+                                                @else
+                                                    <div class="max-h-80 overflow-y-auto rounded-xl border border-zinc-200/70 bg-zinc-50/80 p-3 dark:border-zinc-700/70 dark:bg-zinc-900/70">
+                                                        <table class="min-w-full text-sm">
+                                                            <thead class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                                                <tr>
+                                                                    <th class="py-1 pr-3 text-left">Title</th>
+                                                                    <th class="py-1 pr-3 text-left">Artist</th>
+                                                                    <th class="py-1 text-left">Duration</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="divide-y divide-zinc-200/70 dark:divide-zinc-800">
+                                                                @foreach($songsForGenre as $song)
+                                                                    <tr>
+                                                                        <td class="py-1.5 pr-3 font-medium text-left">
+                                                                            {{ $song->title ?? '—' }}
+                                                                        </td>
+                                                                        <td class="py-1.5 pr-3 text-xs text-gray-600 dark:text-gray-300 text-left">
+                                                                            {{ $song->artist ?? 'N/A' }}
+                                                                        </td>
+                                                                        <td class="py-1.5 text-xs text-gray-600 dark:text-gray-300 text-left">
+                                                                            @if($song->duration_seconds)
+                                                                                {{ intdiv($song->duration_seconds, 60) }}m {{ $song->duration_seconds % 60 }}s
+                                                                            @else
+                                                                                N/A
+                                                                            @endif
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @endif
+
+                                                <div class="mt-4 flex justify-end">
+                                                    <button
+                                                        type="button"
+                                                        @click="openSongs = false"
+                                                        class="rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700"
+                                                    >
+                                                        Close
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
