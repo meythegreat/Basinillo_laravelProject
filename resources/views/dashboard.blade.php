@@ -490,133 +490,157 @@
         </section>
 
 {{-- Add New Song Section --}}
-<section class="rounded-xl bg-zinc-800 shadow-xl border border-zinc-700/50 p-6">
+<section class="rounded-xl bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700/50 p-6">
     <header class="flex items-center gap-3 mb-6">
-        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
         </div>
         <div>
-            <h2 class="text-lg font-bold text-white">Add New Track</h2>
-            <p class="text-xs text-zinc-400">Fill in the details to add a song to your library.</p>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Add New Track</h2>
+            <p class="text-xs text-gray-500 dark:text-zinc-400">
+                Fill in the details to add a song to your library.
+            </p>
         </div>
     </header>
 
     <form method="POST" action="{{ route('songs.store') }}" enctype="multipart/form-data" class="grid gap-6">
         @csrf
 
-        {{-- Top Row: Title & Artist --}}
+        {{-- Title & Artist --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Title <span class="text-rose-500">*</span></label>
+            <div>
+                <label class="block mb-1 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-zinc-400">
+                    Title <span class="text-rose-500">*</span>
+                </label>
                 <input
                     name="title"
                     required
                     placeholder="e.g. Bohemian Rhapsody"
-                    class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
+                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700
+                           bg-gray-50 dark:bg-zinc-900/50
+                           p-3 text-gray-900 dark:text-white
+                           placeholder-gray-400 dark:placeholder-zinc-600
+                           focus:ring-2 focus:ring-indigo-500"
                 />
             </div>
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Artist</label>
+
+            <div>
+                <label class="block mb-1 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-zinc-400">
+                    Artist
+                </label>
                 <input
                     name="artist"
                     placeholder="e.g. Queen"
-                    class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
+                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700
+                           bg-gray-50 dark:bg-zinc-900/50
+                           p-3 text-gray-900 dark:text-white
+                           placeholder-gray-400 dark:placeholder-zinc-600
+                           focus:ring-2 focus:ring-indigo-500"
                 />
             </div>
         </div>
 
-        {{-- Middle Row: Genre, Year, Duration --}}
+        {{-- Genre, Year, Duration --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {{-- Genre --}}
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Genre</label>
-                <div class="relative">
-                    <select
-                        name="genre_id"
-                        class="w-full appearance-none rounded-xl border-none bg-zinc-900/50 p-3 text-white focus:ring-2 focus:ring-indigo-500 transition"
-                    >
-                        <option value="" class="bg-zinc-800 text-zinc-500">Select Genre</option>
-                        @foreach($genres as $g)
-                            <option value="{{ $g->id }}" class="bg-zinc-800">{{ $g->name }}</option>
-                        @endforeach
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
+            <div>
+                <label class="block mb-1 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-zinc-400">
+                    Genre
+                </label>
+                <select
+                    name="genre_id"
+                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700
+                           bg-gray-50 dark:bg-zinc-900/50
+                           p-3 text-gray-900 dark:text-white
+                           focus:ring-2 focus:ring-indigo-500"
+                >
+                    <option value="">Select Genre</option>
+                    @foreach($genres as $g)
+                        <option value="{{ $g->id }}">{{ $g->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
-            {{-- Release Year --}}
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Release Year</label>
+            <div>
+                <label class="block mb-1 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-zinc-400">
+                    Release Year
+                </label>
                 <input
                     name="release_year"
                     type="number"
                     min="1900"
                     max="2100"
-                    placeholder="e.g. 1975"
-                    class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
+                    placeholder="1975"
+                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700
+                           bg-gray-50 dark:bg-zinc-900/50
+                           p-3 text-gray-900 dark:text-white
+                           placeholder-gray-400 dark:placeholder-zinc-600
+                           focus:ring-2 focus:ring-indigo-500"
                 />
             </div>
 
-            {{-- Duration Group --}}
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Duration</label>
+            <div>
+                <label class="block mb-1 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-zinc-400">
+                    Duration
+                </label>
                 <div class="flex gap-2">
-                    <div class="relative w-full">
-                        <input
-                            name="duration_minutes"
-                            type="number"
-                            min="0"
-                            placeholder="0"
-                            class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-center text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
-                        />
-                        <span class="absolute right-3 top-3 text-xs text-zinc-500 pointer-events-none">min</span>
-                    </div>
-                    <div class="relative w-full">
-                        <input
-                            name="duration_seconds"
-                            type="number"
-                            min="0"
-                            max="59"
-                            placeholder="00"
-                            class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-center text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
-                        />
-                        <span class="absolute right-3 top-3 text-xs text-zinc-500 pointer-events-none">sec</span>
-                    </div>
+                    <input
+                        name="duration_minutes"
+                        type="number"
+                        min="0"
+                        placeholder="Min"
+                        class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700
+                               bg-gray-50 dark:bg-zinc-900/50
+                               p-3 text-center text-gray-900 dark:text-white
+                               placeholder-gray-400 dark:placeholder-zinc-600
+                               focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <input
+                        name="duration_seconds"
+                        type="number"
+                        min="0"
+                        max="59"
+                        placeholder="Sec"
+                        class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700
+                               bg-gray-50 dark:bg-zinc-900/50
+                               p-3 text-center text-gray-900 dark:text-white
+                               placeholder-gray-400 dark:placeholder-zinc-600
+                               focus:ring-2 focus:ring-indigo-500"
+                    />
                 </div>
             </div>
         </div>
 
-        {{-- Bottom Row: File Upload & Action --}}
+        {{-- File Upload + Submit --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Cover Art</label>
+            <div>
+                <label class="block mb-1 text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-zinc-400">
+                    Cover Art
+                </label>
                 <input
                     type="file"
                     name="photo"
                     accept="image/png,image/jpeg"
-                    class="block w-full text-sm text-zinc-400
-                        file:mr-4 file:py-2.5 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-xs file:font-bold
-                        file:bg-zinc-700 file:text-indigo-400
-                        hover:file:bg-zinc-600
-                        cursor-pointer focus:outline-none"
+                    class="block w-full text-sm text-gray-600 dark:text-zinc-400
+                           file:mr-4 file:py-2.5 file:px-4
+                           file:rounded-full file:border-0
+                           file:text-xs file:font-bold
+                           file:bg-zinc-200 dark:file:bg-zinc-700
+                           file:text-indigo-600 dark:file:text-indigo-400
+                           hover:file:bg-zinc-300 dark:hover:file:bg-zinc-600"
                 />
             </div>
 
             <div class="flex justify-end">
                 <button
                     type="submit"
-                    class="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-indigo-600 px-8 py-3 font-bold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500 hover:scale-[1.02] focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-zinc-900"
+                    class="inline-flex items-center gap-2 rounded-xl
+                           bg-indigo-600 px-8 py-3 font-bold text-white
+                           shadow-lg shadow-indigo-500/30
+                           hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-400"
                 >
-                    <span>Add to Library</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+                    Add to Library
                 </button>
             </div>
         </div>

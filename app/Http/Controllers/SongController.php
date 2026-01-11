@@ -48,6 +48,10 @@ class SongController extends Controller
 
     public function store(Request $r)
     {
+        $r->merge([
+            'genre_id' => $r->genre_id ?: null,
+        ]);
+
         $validated = $r->validate([
             'title' => 'required|string|max:255',
             'artist' => 'nullable|string|max:255',
