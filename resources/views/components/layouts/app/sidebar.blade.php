@@ -29,6 +29,13 @@
                         {{ __('Courses') }}
                     </flux:navlist.item>
 
+                    <flux:navlist.item
+                        icon="trash"
+                        href="{{ route('students.trash') }}"
+                        :current="request()->routeIs('students.trash')">
+                        Trash
+                    </flux:navlist.item>
+
                 </flux:navlist.group>
             </flux:navlist>
 

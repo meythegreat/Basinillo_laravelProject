@@ -20,6 +20,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');
     Route::put('/students/{student}', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+
+    Route::get('/students/trash', [StudentController::class, 'trash'])->name('students.trash');
+    Route::post('/students/{id}/restore', [StudentController::class, 'restore'])->name('students.restore');
+    Route::delete('/students/{id}/force-delete', [StudentController::class, 'forceDelete'])->name('students.force-delete');
+
+    Route::get('/students/export', [StudentController::class, 'export'])->name('students.export');
 });
 
 // Course routes - CRUD operations
