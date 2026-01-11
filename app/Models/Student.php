@@ -15,6 +15,7 @@ class Student extends Model
         'phone',
         'address',
         'course_id',
+        'photo',
     ];
 
     public function course()

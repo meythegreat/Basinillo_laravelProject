@@ -5,16 +5,30 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Course;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
     /**
      * Display dashboard with students and courses
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = Student::with('course');
 
-        $students = Student::with('course')->latest()->get();
+         if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                ->orWhere('email', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        if ($request->filled('course_filter') && $request->course_filter != '') {
+            $query->where('course_id', $request->course_filter);
+        }
+
+        $students = $query->latest()->get();
         $courses = Course::all();
         $activeCourses = Course::count();
 
@@ -32,7 +46,13 @@ class StudentController extends Controller
             'phone' => 'required|string|max:15',
             'address' => 'required|string|max:255',
             'course_id' => 'required|exists:courses,id',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+         if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('student-photos', 'public');
+            $validated['photo'] = $photoPath;
+        }
 
         Student::create($validated);
 
@@ -50,7 +70,16 @@ class StudentController extends Controller
             'phone' => 'required|string|max:15',
             'address' => 'required|string|max:255',
             'course_id' => 'required|exists:courses,id',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+         if ($request->hasFile('photo')) {
+             if ($student->photo) {
+                Storage::disk('public')->delete($student->photo);
+            }
+            $photoPath = $request->file('photo')->store('student-photos', 'public');
+            $validated['photo'] = $photoPath;
+        }
 
         $student->update($validated);
 
@@ -62,6 +91,10 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
+        if ($student->photo) {
+            Storage::disk('public')->delete($student->photo);
+        }
+
         $student->delete();
         return redirect()->back()->with('success', 'Student deleted successfully.');
     }
