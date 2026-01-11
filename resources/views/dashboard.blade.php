@@ -1,5 +1,5 @@
 <x-layouts.app.sidebar :title="'Music Dashboard'">
-    <div class="w-full p-6 xl:p-8 2xl:p-10 text-gray-900 dark:text-gray-100 space-y-8">
+    <div class="w-full p-6 text-gray-900 dark:text-gray-100 space-y-8">
 
         {{-- Page header (separate look is OK) --}}
         <header class="rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-6 py-5 text-white shadow-lg">
@@ -150,6 +150,7 @@
                                 </a>
                             @endif
                         </div>
+                        <a href="{{ route('songs.export.pdf', request()->query()) }}" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">Export PDF</a>
                     </form>
                 </div>
             </div>
@@ -158,6 +159,7 @@
                 <table class="min-w-full table-auto text-sm">
                     <thead class="bg-zinc-100/80 text-left text-xs uppercase tracking-wide text-gray-600 dark:bg-zinc-900/80 dark:text-gray-300">
                         <tr>
+                            <th class="px-4 py-3">Cover</th>
                             <th class="px-4 py-3">Title</th>
                             <th class="px-4 py-3">Artist</th>
                             <th class="px-4 py-3">Genre</th>
@@ -168,6 +170,19 @@
                     <tbody class="divide-y divide-zinc-200/70 bg-white/80 dark:divide-zinc-800 dark:bg-transparent">
                         @forelse($songs as $song)
                             <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/60">
+                                <td class="px-4 py-3 align-middle">
+                                    @if($song->photo)
+                                        <img
+                                            src="{{ asset('storage/' . $song->photo) }}"
+                                            alt="Album cover"
+                                            class="h-12 w-12 rounded-lg object-cover shadow"
+                                        >
+                                    @else
+                                        <div class="h-12 w-12 rounded-lg bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+                                            {{ strtoupper(substr($song->title, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3 align-middle">
                                     <div class="font-medium">{{ $song->title ?? '—' }}</div>
                                     @if($song->release_year)
@@ -205,28 +220,38 @@
                                         }"
                                         class="inline-flex items-center gap-2"
                                     >
-                                        <button
-                                            @click="open=true"
-                                            class="text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200 underline"
-                                        >
-                                            Edit
-                                        </button>
+                                <div class="flex items-center gap-2">
+                                    {{-- Edit Button --}}
+                                    <button
+                                        @click="open=true"
+                                        class="group inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 transition-all hover:bg-indigo-600 hover:text-white dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500 dark:hover:text-white"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform group-hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit
+                                    </button>
 
-                                        <form
-                                            method="POST"
-                                            action="{{ route('songs.destroy', $song) }}"
-                                            onsubmit="return confirm('Delete this song?');"
-                                            class="inline-block"
+                                    {{-- Delete Button --}}
+                                    <form
+                                        method="POST"
+                                        action="{{ route('songs.destroy', $song) }}"
+                                        onsubmit="return confirm('Move this song to the trash?');"
+                                        class="inline-block"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            class="group inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-600 transition-all hover:bg-rose-600 hover:text-white dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500 dark:hover:text-white"
                                         >
-                                            @csrf
-                                            @method('DELETE')
-                                            <button
-                                                type="submit"
-                                                class="text-xs font-medium text-rose-600 hover:text-rose-700 dark:text-rose-300 dark:hover:text-rose-200 underline"
-                                            >
-                                                Delete
-                                            </button>
-                                        </form>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
 
                                         {{-- Edit modal --}}
                                         <div
@@ -236,41 +261,53 @@
                                         >
                                             <div
                                                 @click.away="open=false"
-                                                class="w-full max-w-2xl rounded-2xl border border-zinc-200/80 bg-white p-5 text-gray-900 shadow-xl dark:border-zinc-700/70 dark:bg-zinc-900 dark:text-gray-100"
+                                                class="w-full max-w-xl rounded-2xl border border-zinc-200/80
+                                                    bg-white p-6 shadow-xl
+                                                    dark:border-zinc-700/70 dark:bg-zinc-900 dark:text-gray-100"
                                             >
-                                                <div class="mb-3 flex items-start justify-between gap-3">
+                                                {{-- Header --}}
+                                                <div class="mb-4 flex items-start justify-between">
                                                     <div>
-                                                        <h3 class="text-lg font-semibold">Edit Song</h3>
+                                                        <h3 class="text-lg font-semibold text-left">Edit Song</h3>
                                                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                            Update details and save changes.
+                                                            Update song details or replace the cover image.
                                                         </p>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         @click="open=false"
-                                                        class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                                                     >
                                                         ✕
                                                     </button>
                                                 </div>
 
-                                                <form action="{{ route('songs.update', $song) }}" method="POST" class="grid gap-3">
+                                                <form
+                                                    action="{{ route('songs.update', $song) }}"
+                                                    method="POST"
+                                                    enctype="multipart/form-data"
+                                                    class="space-y-4"
+                                                >
                                                     @csrf
                                                     @method('PUT')
 
-                                                    <div class="grid gap-3 md:grid-cols-2">
-                                                        <div class="md:col-span-2">
-                                                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
-                                                                Title *
-                                                            </label>
-                                                            <input
-                                                                name="title"
-                                                                x-model="title"
-                                                                required
-                                                                class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm"
-                                                            />
-                                                        </div>
+                                                    {{-- Title --}}
+                                                    <div>
+                                                        <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
+                                                            Title *
+                                                        </label>
+                                                        <input
+                                                            name="title"
+                                                            x-model="title"
+                                                            required
+                                                            class="w-full rounded-lg border border-gray-300
+                                                                bg-gray-50 p-2 text-sm
+                                                                dark:border-zinc-700 dark:bg-zinc-800/80"
+                                                        />
+                                                    </div>
 
+                                                    {{-- Artist & Genre --}}
+                                                    <div class="grid grid-cols-2 gap-3">
                                                         <div>
                                                             <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                                                                 Artist
@@ -278,7 +315,9 @@
                                                             <input
                                                                 name="artist"
                                                                 x-model="artist"
-                                                                class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm"
+                                                                class="w-full rounded-lg border border-gray-300
+                                                                    bg-gray-50 p-2 text-sm
+                                                                    dark:border-zinc-700 dark:bg-zinc-800/80"
                                                             />
                                                         </div>
 
@@ -289,9 +328,11 @@
                                                             <select
                                                                 name="genre_id"
                                                                 x-model="genre"
-                                                                class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm"
+                                                                class="w-full rounded-lg border border-gray-300
+                                                                    bg-gray-50 p-2 text-sm
+                                                                    dark:border-zinc-700 dark:bg-zinc-800/80"
                                                             >
-                                                                <option value="">-- Genre (optional) --</option>
+                                                                <option value="">No genre</option>
                                                                 @foreach($genres as $g)
                                                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
                                                                 @endforeach
@@ -299,8 +340,9 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="grid gap-3 md:grid-cols-3">
-                                                        <div class="md:col-span-2">
+                                                    {{-- Duration & Year --}}
+                                                    <div class="grid grid-cols-3 gap-3">
+                                                        <div class="col-span-2">
                                                             <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                                                                 Duration
                                                             </label>
@@ -311,7 +353,9 @@
                                                                     min="0"
                                                                     x-model.number="minutes"
                                                                     placeholder="Minutes"
-                                                                    class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm"
+                                                                    class="w-full rounded-lg border border-gray-300
+                                                                        bg-gray-50 p-2 text-sm
+                                                                        dark:border-zinc-700 dark:bg-zinc-800/80"
                                                                 />
                                                                 <input
                                                                     name="duration_seconds"
@@ -320,14 +364,16 @@
                                                                     max="59"
                                                                     x-model.number="seconds"
                                                                     placeholder="Seconds"
-                                                                    class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm"
+                                                                    class="w-full rounded-lg border border-gray-300
+                                                                        bg-gray-50 p-2 text-sm
+                                                                        dark:border-zinc-700 dark:bg-zinc-800/80"
                                                                 />
                                                             </div>
                                                         </div>
 
                                                         <div>
                                                             <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
-                                                                Release Year
+                                                                Year
                                                             </label>
                                                             <input
                                                                 name="release_year"
@@ -335,11 +381,14 @@
                                                                 min="1900"
                                                                 max="2100"
                                                                 x-model="year"
-                                                                class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm"
+                                                                class="w-full rounded-lg border border-gray-300
+                                                                    bg-gray-50 p-2 text-sm
+                                                                    dark:border-zinc-700 dark:bg-zinc-800/80"
                                                             />
                                                         </div>
                                                     </div>
 
+                                                    {{-- Notes --}}
                                                     <div>
                                                         <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                                                             Notes
@@ -348,21 +397,71 @@
                                                             name="notes"
                                                             x-model="notes"
                                                             rows="2"
-                                                            class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm"
+                                                            class="w-full rounded-lg border border-gray-300
+                                                                bg-gray-50 p-2 text-sm
+                                                                dark:border-zinc-700 dark:bg-zinc-800/80"
                                                         ></textarea>
                                                     </div>
 
-                                                    <div class="mt-3 flex items-center gap-2">
+                                                    {{-- Current Photo + Remove --}}
+                                                    @if($song->photo)
+                                                        <div class="flex items-center gap-3">
+                                                            <img
+                                                                src="{{ asset('storage/'.$song->photo) }}"
+                                                                class="h-16 w-16 rounded-lg object-cover border"
+                                                                alt="Current cover"
+                                                            >
+                                                            <label class="flex items-center gap-2 text-xs text-rose-600">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    name="remove_photo"
+                                                                    value="1"
+                                                                    class="rounded border-gray-300"
+                                                                >
+                                                                Remove current photo
+                                                            </label>
+                                                        </div>
+                                                    @endif
+
+                                                    {{-- Drag & Drop Upload --}}
+                                                    <div
+                                                        x-data="{ drag:false }"
+                                                        @dragover.prevent="drag=true"
+                                                        @dragleave.prevent="drag=false"
+                                                        @drop.prevent="drag=false"
+                                                        :class="drag
+                                                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                                                            : 'border-zinc-300 dark:border-zinc-700'"
+                                                        class="relative rounded-lg border-2 border-dashed p-4 text-center text-xs transition"
+                                                    >
+                                                        <input
+                                                            type="file"
+                                                            name="photo"
+                                                            accept="image/png,image/jpeg"
+                                                            class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                                        >
+                                                        <p class="text-gray-600 dark:text-gray-300">
+                                                            Drag & drop a new cover here, or click to browse
+                                                        </p>
+                                                    </div>
+
+                                                    {{-- Actions --}}
+                                                    <div class="mt-4 flex items-center gap-2">
                                                         <button
                                                             type="button"
                                                             @click="open=false"
-                                                            class="rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700"
+                                                            class="rounded-lg border border-zinc-300
+                                                                bg-zinc-100 px-4 py-1.5 text-xs font-medium
+                                                                text-gray-700 hover:bg-gray-900
+                                                                dark:border-zinc-700 dark:bg-zinc-800 dark:text-gray-200"
                                                         >
                                                             Cancel
                                                         </button>
                                                         <button
                                                             type="submit"
-                                                            class="ml-auto rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                                                            class="ml-auto rounded-lg bg-indigo-600
+                                                                px-4 py-1.5 text-xs font-semibold
+                                                                text-white hover:bg-indigo-700"
                                                         >
                                                             Save Changes
                                                         </button>
@@ -390,106 +489,139 @@
             </div>
         </section>
 
-        {{-- Bottom: Add New Song (same card style, 2 rows layout) --}}
-        <section class="rounded-2xl border border-zinc-200/80 bg-white/95 p-5 shadow-sm dark:border-zinc-700/70 dark:bg-zinc-900/80">
-            <h2 class="mb-3 text-sm font-semibold tracking-wide uppercase text-gray-700 dark:text-gray-200">
-                Add New Song
-            </h2>
+{{-- Add New Song Section --}}
+<section class="rounded-xl bg-zinc-800 shadow-xl border border-zinc-700/50 p-6">
+    <header class="flex items-center gap-3 mb-6">
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+        </div>
+        <div>
+            <h2 class="text-lg font-bold text-white">Add New Track</h2>
+            <p class="text-xs text-zinc-400">Fill in the details to add a song to your library.</p>
+        </div>
+    </header>
 
-            <form method="POST" action="{{ route('songs.store') }}" class="space-y-4">
-                @csrf
+    <form method="POST" action="{{ route('songs.store') }}" enctype="multipart/form-data" class="grid gap-6">
+        @csrf
 
-                {{-- Row 1: Title (60%) + Artist (40%) --}}
-                <div class="grid grid-cols-5 gap-3">
-                    <div class="col-span-3">
-                        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            Title *
-                        </label>
-                        <input
-                            name="title"
-                            required
-                            placeholder="Title"
-                            class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm text-gray-900 dark:text-gray-100"
-                        />
-                    </div>
-                    <div class="col-span-2">
-                        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            Artist
-                        </label>
-                        <input
-                            name="artist"
-                            placeholder="Artist"
-                            class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm text-gray-900 dark:text-gray-100"
-                        />
+        {{-- Top Row: Title & Artist --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Title <span class="text-rose-500">*</span></label>
+                <input
+                    name="title"
+                    required
+                    placeholder="e.g. Bohemian Rhapsody"
+                    class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
+                />
+            </div>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Artist</label>
+                <input
+                    name="artist"
+                    placeholder="e.g. Queen"
+                    class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
+                />
+            </div>
+        </div>
+
+        {{-- Middle Row: Genre, Year, Duration --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{-- Genre --}}
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Genre</label>
+                <div class="relative">
+                    <select
+                        name="genre_id"
+                        class="w-full appearance-none rounded-xl border-none bg-zinc-900/50 p-3 text-white focus:ring-2 focus:ring-indigo-500 transition"
+                    >
+                        <option value="" class="bg-zinc-800 text-zinc-500">Select Genre</option>
+                        @foreach($genres as $g)
+                            <option value="{{ $g->id }}" class="bg-zinc-800">{{ $g->name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
+            </div>
 
-                {{-- Row 2: Minutes, Seconds, Genre, Release Year (25% each) --}}
-                <div class="grid grid-cols-4 gap-3">
-                    <div>
-                        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            Minutes
-                        </label>
+            {{-- Release Year --}}
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Release Year</label>
+                <input
+                    name="release_year"
+                    type="number"
+                    min="1900"
+                    max="2100"
+                    placeholder="e.g. 1975"
+                    class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
+                />
+            </div>
+
+            {{-- Duration Group --}}
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Duration</label>
+                <div class="flex gap-2">
+                    <div class="relative w-full">
                         <input
                             name="duration_minutes"
                             type="number"
                             min="0"
-                            placeholder="Min"
-                            class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm text-gray-900 dark:text-gray-100"
+                            placeholder="0"
+                            class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-center text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
                         />
+                        <span class="absolute right-3 top-3 text-xs text-zinc-500 pointer-events-none">min</span>
                     </div>
-                    <div>
-                        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            Seconds
-                        </label>
+                    <div class="relative w-full">
                         <input
                             name="duration_seconds"
                             type="number"
                             min="0"
                             max="59"
-                            placeholder="Sec"
-                            class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm text-gray-900 dark:text-gray-100"
+                            placeholder="00"
+                            class="w-full rounded-xl border-none bg-zinc-900/50 p-3 text-center text-white placeholder-zinc-600 focus:ring-2 focus:ring-indigo-500 transition"
                         />
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            Genre
-                        </label>
-                        <select
-                            name="genre_id"
-                            class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm text-gray-900 dark:text-gray-100"
-                        >
-                            <option value="">-- Genre (optional) --</option>
-                            @foreach($genres as $g)
-                                <option value="{{ $g->id }}">{{ $g->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            Release Year
-                        </label>
-                        <input
-                            name="release_year"
-                            type="number"
-                            min="1900"
-                            max="2100"
-                            placeholder="Year"
-                            class="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/80 p-2 text-sm text-gray-900 dark:text-gray-100"
-                        />
+                        <span class="absolute right-3 top-3 text-xs text-zinc-500 pointer-events-none">sec</span>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="flex justify-end">
-                    <button
-                        type="submit"
-                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
-                    >
-                        Add Song
-                    </button>
-                </div>
-            </form>
-        </section>
+        {{-- Bottom Row: File Upload & Action --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Cover Art</label>
+                <input
+                    type="file"
+                    name="photo"
+                    accept="image/png,image/jpeg"
+                    class="block w-full text-sm text-zinc-400
+                        file:mr-4 file:py-2.5 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-xs file:font-bold
+                        file:bg-zinc-700 file:text-indigo-400
+                        hover:file:bg-zinc-600
+                        cursor-pointer focus:outline-none"
+                />
+            </div>
+
+            <div class="flex justify-end">
+                <button
+                    type="submit"
+                    class="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-indigo-600 px-8 py-3 font-bold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500 hover:scale-[1.02] focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-zinc-900"
+                >
+                    <span>Add to Library</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
 
     </div>
 </x-layouts.app.sidebar>

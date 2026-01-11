@@ -53,6 +53,16 @@
                         {{ __('Genres') }}
                     </flux:navlist.item>
                 </flux:navlist.group>
+
+                    <flux:navlist.item
+                icon="trash"
+                :href="route('songs.trash')"
+                :current="request()->routeIs('songs.trash')"
+                class="rounded-xl px-3 py-2 text-sm data-[current=true]:bg-indigo-50 data-[current=true]:text-indigo-700 dark:data-[current=true]:bg-indigo-500/10 dark:data-[current=true]:text-indigo-300"
+                wire:navigate
+            >
+                {{ __('Trash') }}
+            </flux:navlist.item>
             </flux:navlist>
 
             <flux:spacer />

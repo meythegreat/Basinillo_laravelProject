@@ -45,6 +45,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [SongController::class,'index'])->name('dashboard');
     Route::resource('songs', SongController::class)->except(['create','show','edit']);
     Route::resource('genres', GenreController::class)->only(['index','store','update','destroy']);
+
+    Route::get('/songs/trash', [SongController::class, 'trash'])->name('songs.trash');
+    Route::post('/songs/{id}/restore', [SongController::class, 'restore'])->name('songs.restore');
+    Route::delete('/songs/{id}/force-delete', [SongController::class, 'forceDelete'])->name('songs.forceDelete');
+
+    Route::get('/songs/export/pdf', [SongController::class, 'exportPdf'])
+    ->name('songs.export.pdf')
+    ->middleware('auth');
+
 });
 
 Route::post('/register', function (Request $request) {
